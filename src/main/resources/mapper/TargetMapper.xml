@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.newsmetro.dao.TargetMapper">
+    <sql id="target_columns">
+        t.id as id,t.user_id as userId,t.user_target_id as userTargetId,t.name as name,t.url as url,t.abs_xpath as absXpath,t.rel_xpath as relXpath,
+        t.regex as regex,t.xquery as xquery,t.template as template,t.parent_id as parentId,t.md5 as md5,t.type as `type`,t.status as status,t.create_time as createTime
+    </sql>
+
+    <select id="getTargetById" resultType="com.newsmetro.po.Target">
+        select <include refid="target_columns"/> from target as t where t.id = #{id};
+    </select>
+
+    <select id="findTarget" resultType="com.newsmetro.po.Target">
+        select <include refid="target_columns"/> from target as t
+        <trim prefix="where" prefixOverrides="and" >
+            <if test="userId!=null">
+                and t.user_id = #{userId}
+            </if>
+            <if test="userTargetId!=null">
+                and t.user_target_id = #{userTargetId}
+            </if>
+            <if test="status!=null">
+                and t.status = #{status}
+            </if>
+            <if test="type!=null">
+                and t.type = #{type}
+            </if>
+        </trim>
+
+    </select>
+
+    <delete id="deleteById">
+        delete from target where id = #{id}
+    </delete>
+
+    <insert id="save" parameterType="com.newsmetro.po.Target"  useGeneratedKeys="true" keyProperty="id">
+        insert into target(user_id,user_target_id,`name`,url,abs_xpath,rel_xpath,regex,xquery,template,parent_id,md5,`type`,status,create_time)
+        values (#{userId},#{userTargetId},#{name},#{url},#{absXpath},#{relXpath},#{regex},#{xquery},#{template},#{parentId},#{md5},#{type},#{status},#{createTime});
+        <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
+            select LAST_INSERT_ID();
+        </selectKey>
+    </insert>
+
+    <update id="update">
+        update target
+        <set>
+            <if test="target.userId != null">user_id = #{target.userId},</if>
+            <if test="target.name != null">`name` = #{target.name},</if>
+            <if test="target.url != null">url = #{target.url},</if>
+            <if test="target.absXpath != null">abs_xpath = #{target.absXpath},</if>
+            <if test="target.relXpath != null">rel_xpath = #{target.relXpath},</if>
+            <if test="target.regex != null">regex = #{target.regex},</if>
+            <if test="target.xquery != null">xquery = #{target.xquery},</if>
+            <if test="target.template != null">template = #{target.template},</if>
+            <if test="target.parentId != null">parent_id = #{target.parentId},</if>
+            <if test="target.md5 != null">md5 = #{target.md5},</if>
+            <if test="target.type != null">`type` = #{target.type},</if>
+            <if test="target.status != null">status = #{target.status}</if>
+        </set>
+        where id = #{target.id}
+    </update>
+
+</mapper>

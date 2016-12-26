@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.newsmetro.dao.TargetCacheMapper">
+
+    <select id="getTargetCacheByTargetId" resultType="com.newsmetro.po.TargetCache">
+        select id as id,target_id as targetId,items as items,md5 as md5,update_time as updateTime from target_mapping where target_id = #{targetId};
+    </select>
+
+    <insert id="saveTargetCache" parameterType="com.newsmetro.po.TargetCache" useGeneratedKeys="true" keyProperty="id">
+        insert into target_mapping(target_id,items,md5,update_time) values(#{targetCache.targetId},#{targetCache.items},#{targetCache.md5},#{targetCache.updateTime})
+        <selectKey resultType="java.lang.Long" order="AFTER"
+                   keyProperty="id">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <delete id="delete">
+        delete from target_mapping where target_id = #{targetId}
+    </delete>
+</mapper>

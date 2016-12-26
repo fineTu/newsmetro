@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location" value="classpath:config.properties" />
+        <property name="fileEncoding" value="utf-8" />
+    </bean>
+
+    <bean id="jedisConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="testWhileIdle" value="true" />
+        <property name="testOnBorrow" value="true" />
+        <property name="maxIdle" value="20" />
+        <property name="minIdle" value="5" />
+    </bean>
+
+
+    <!-- 统计redis -->
+    <bean id="masterRedis" class="redis.clients.jedis.JedisPool"
+          destroy-method="destroy">
+        <constructor-arg ref="jedisConfig" />
+        <constructor-arg value="${redisHost}" />
+        <constructor-arg value="${redisPort}" />
+        <constructor-arg value="${redisTimeout}" />
+        <constructor-arg value="${redisDatabase}" />
+    </bean>
+
+    <bean id="RedisUtil" class="com.newsmetro.util.RedisUtil" ></bean>
+</beans>

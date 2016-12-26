@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!--======================================= 定时任务================================================== -->
+    <bean autowire="no" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers">    <!-- triggers是Spring定时器的特殊属性 -->
+            <list>
+                <ref local="testTrigger" />
+            </list>
+        </property>
+    </bean>
+
+    <bean id="testTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail"><!-- jobDetail是Spring定时器的特殊属性 -->
+            <ref bean="activateCardJobDetail" />
+        </property>
+        <property name="cronExpression">
+            <!-- <value>0 0 * * * *</value> --><!-- cronExpression是Spring定时器的特殊属性 -->
+            <value>0 0 * * * ?</value>
+        </property>
+    </bean>
+
+    <bean id="activateCardJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject">   <!-- targetObject是Spring定时器的特殊属性 -->
+            <ref bean="clearNewUserJob" /> <!-- 这个就是具体实现类，如果是注解，则必须为component指定value -->
+        </property>
+        <property name="targetMethod">    <!-- targetMethod是Spring定时器的特殊属性 -->
+            <value>execute</value><!--  就是java类中的任务方法 -->
+        </property>
+    </bean>
+    <bean id="clearNewUserJob" class="com.newsmetro.jobs.ClearNewUserJob" />
+</beans>

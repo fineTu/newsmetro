@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.newsmetro.dao.NewsMapper">
+    <sql id="news_columns">
+        n.id as id,n.target_id as targetId,n.target_md5 as targetMd5,n.user_target_id as userTargetId,n.news_id as newsId,
+        n.title as title,n.link as link,n.status as status,n.publish_time as publishTime,n.create_time as createTime,
+        nc.content as content
+    </sql>
+
+    <select id="findById" resultType="com.newsmetro.pojo.NewsBean">
+        select <include refid="news_columns"/> from news as n left join news_content as nc on n.id = nc.news_id where n.id = #{id};
+    </select>
+
+    <select id="find" resultType="com.newsmetro.pojo.NewsBean">
+        select <include refid="news_columns"/> from news as n left join news_content as nc on n.id = nc.news_id
+        <trim prefix="where" prefixOverrides="and" >
+            <if test="targetId!=null">
+                and n.target_id = #{targetId}
+            </if>
+            <if test="userTargetId!=null">
+                and n.user_target_id = #{userTargetId}
+            </if>
+            <if test="status!=null">
+                and n.status = #{status}
+            </if>
+            <if test="targetIds!=null">
+                and n.target_id in
+                <foreach collection="targetIds" item="tid" open="(" close=")" separator=",">
+                    #{tid}
+                </foreach>
+            </if>
+        </trim>
+        order by n.create_time desc
+        <if test="offset!=null and pageSize!=null">
+            limit #{offset},#{pageSize}
+        </if>
+    </select>
+
+    <insert id="saveNews" parameterType="com.newsmetro.po.News"  useGeneratedKeys="true" keyProperty="id">
+        insert into news(target_id,target_md5,user_target_id,news_id,title,link,status,publish_time,create_time)
+        values (#{targetId},#{targetMd5},#{userTargetId},#{newsId},#{title},#{link},#{status},#{publishTime},#{createTime});
+        <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
+            select LAST_INSERT_ID();
+        </selectKey>
+    </insert>
+
+    <update id="update">
+        update news
+        <set>
+            <if test="status != null">status = #{status}</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="saveContent" parameterType="com.newsmetro.po.NewsContent"  useGeneratedKeys="true" keyProperty="id">
+        insert into newsContent(news_id,content,create_time)
+        values (#{newsId},#{content},#{createTime});
+        <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
+            select LAST_INSERT_ID();
+        </selectKey>
+    </insert>
+
+</mapper>

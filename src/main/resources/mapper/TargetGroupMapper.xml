@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.newsmetro.dao.TargetGroupMapper">
+
+    <select id="findByUserId" resultType="com.newsmetro.po.TargetGroup">
+        select id as id,user_id as userId,`name` as `name`,`position` as `position`,status as status,description as description,create_time as createTime
+        from target_group
+        where user_id = #{userId}
+        order by `position` asc
+    </select>
+
+    <insert id="save" parameterType="com.newsmetro.po.TargetGroup" useGeneratedKeys="true" keyProperty="id">
+        insert into target_group(user_id,`name`,`position`,status,description,create_time)
+        values(#{userId},#{name},#{position},#{status},#{description},#{createTime})
+        <selectKey resultType="java.lang.Long" order="AFTER"
+                   keyProperty="id">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <delete id="delete">
+        delete from target_group where id = #{targetGroupId}
+    </delete>
+
+    <update id="update" parameterType="com.newsmetro.po.TargetGroup">
+        update target_group
+        <trim prefix="set" suffixOverrides=",">
+            <if test="position != null">`position` = #{position},</if>
+            <if test="name != null">`name` = #{name},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="description != null">`description` = #{description},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <sql id="target_columns">id as id, user_id as userId,name as name,url as url,abs_xpath as absXpath,rel_xpath as relXpath,regex as regex,md5 as md5,type as type,status as status</sql>
+
+    <select id="findTargetByGroupId" resultType="com.newsmetro.po.Target">
+        select <include refid="target_columns"/> from target
+        where id in (
+          select target_id from target_group_rel where target_group_id = #{targetGroupId})
+        order by id
+    </select>
+
+    <insert id="addToGroup" parameterType="com.newsmetro.po.TargetGroupRel" useGeneratedKeys="true" keyProperty="id">
+        insert into target_group_rel(target_id,target_group_id,`position`,create_time)
+        values(#{targetId},#{targetGroupId},#{position},#{createTime})
+        <selectKey resultType="java.lang.Long" order="AFTER"
+                   keyProperty="id">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <delete id="removeFromGroup">
+        delete from target_group_rel where target_id = #{targetId} and target_group_id = #{targetGroupId}
+    </delete>
+</mapper>

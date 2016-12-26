@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!--======================================= mapper================================================== -->
+    <bean id="parentMapper" class="org.mybatis.spring.mapper.MapperFactoryBean" abstract="true">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+    </bean>
+    <bean id="userMapper" parent="parentMapper">
+        <property name="mapperInterface" value="com.newsmetro.dao.UserMapper"></property>
+    </bean>
+
+    <bean id="targetPointMapper" parent="parentMapper">
+        <property name="mapperInterface" value="com.newsmetro.dao.TargetMapper"></property>
+    </bean>
+    <bean id="targetCacheMapper" parent="parentMapper">
+        <property name="mapperInterface" value="com.newsmetro.dao.TargetCacheMapper"></property>
+    </bean>
+    <bean id="targetGroupMapper" parent="parentMapper">
+        <property name="mapperInterface" value="com.newsmetro.dao.TargetGroupMapper"></property>
+    </bean>
+    <bean id="userTargetMapper" parent="parentMapper">
+        <property name="mapperInterface" value="com.newsmetro.dao.UserTargetMapper"></property>
+    </bean>
+    <bean id="newsMapper" parent="parentMapper">
+        <property name="mapperInterface" value="com.newsmetro.dao.NewsMapper"></property>
+    </bean>
+</beans>

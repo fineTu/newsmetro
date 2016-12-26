@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.newsmetro.dao.UserMapper">
+    <sql id="user_columns">u.id as id,u.password as password,u.email as email,u.status as status,u.code as code,u.create_time as createTime</sql>
+    <sql id="user_info_columns">
+      ui.name as name,ui.photo as photo,ui.sex as sex,ui.sign as sign
+    </sql>
+
+    <select id="getUserCountByEmail" resultType="java.lang.Long">
+        select count(*) from user where email = #{email};
+    </select>
+
+    <select id="findUser" parameterType="com.newsmetro.pojo.UserForm" resultType="com.newsmetro.po.User">
+        select
+        <include refid="user_columns"/>,<include refid="user_info_columns"/>
+        from user as u left join user_info as ui on u.id=ui.user_id
+        <trim prefix="where" prefixOverrides="and" >
+            <if test="email!=null">and u.email = #{email}</if>
+            <if test="password!=null">and u.password = #{password}</if>
+            <if test="status!=null">and u.status = #{status}</if>
+            <if test="code!=null">and u.code = #{code}</if>
+            <if test="startTime!=null">and u.create_time > #{startTime}</if>
+            <if test="endTime!=null">and u.create_time = #{endTime}</if>
+        </trim>
+    </select>
+
+    <select id="findById" parameterType="java.lang.Long" resultType="com.newsmetro.po.User">
+        select
+        <include refid="user_columns"/>,<include refid="user_info_columns"/>
+        from user as u left join user_info as ui on u.id=ui.user_id
+        where u.id = #{id}
+    </select>
+
+    <select id="getUserByEmail" resultType="com.newsmetro.po.User">
+        select
+          <include refid="user_columns"/>,<include refid="user_info_columns"/>
+        from user as u left join user_info as ui on u.id=ui.user_id where u.email = #{email};
+    </select>
+
+    <select id="getUserByEmailAndCode" resultType="com.newsmetro.po.User">
+        select
+          <include refid="user_columns"/>,<include refid="user_info_columns"/>
+        from user  as u left join user_info as ui on u.id=ui.user_id where u.email = #{email} and u.code = #{code};
+    </select>
+
+    <select id="getUserByEmailAndStatus" resultType="com.newsmetro.po.User">
+        select
+          <include refid="user_columns"/>,<include refid="user_info_columns"/>
+        from user as u left join user_info as ui on u.id=ui.user_id where u.email = #{email} and u.status = #{status};
+    </select>
+
+    <select id="getUserByStatusAndCreateTime" resultType="com.newsmetro.po.User">
+        select id from user where status = #{status}
+        <trim prefix="and" >
+
+        </trim>
+        and create_time > #{startTime} and create_time &lt; #{endTime};
+    </select>
+
+    <select id="getUserByEmailAndPassword" resultType="com.newsmetro.po.User">
+        select <include refid="user_columns"/>,<include refid="user_info_columns"/>
+        from user where u.email = #{email} and u.password = #{password}
+    </select>
+
+    <delete id="deleteByIdList"  >
+        delete from user where id in
+        <foreach collection="idList" item="item" open="(" separator="," close=")">#{item} </foreach>
+    </delete>
+
+    <delete id="deleteById"  >
+        delete from user where id = #{id}
+    </delete>
+
+    <insert id="saveUser"  useGeneratedKeys="true" keyProperty="user.id" parameterType="com.newsmetro.po.User">
+        insert into `user`(password,email,status,code,create_time)
+        values (#{user.password},#{user.email},#{user.status},#{user.code},#{user.createTime});
+       <!-- <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+            select LAST_INSERT_ID() as id;
+        </selectKey>-->
+    </insert>
+
+    <insert id="saveInfo"  useGeneratedKeys="true" parameterType="com.newsmetro.po.User">
+        insert into user_info(user_id,`name`,photo,sex,sign,update_time,create_time)
+        values (#{user.userId},#{user.name},#{user.photo},#{user.sex},#{user.sign},#{user.updateTime},#{user.createTime});
+    </insert>
+
+    <update id="updateUser">
+        update `user`
+        <set>
+            <if test="user.name != null">`name` = #{user.name},</if>
+            <if test="user.password != null">password = #{user.password},</if>
+            <if test="user.email != null">email = #{user.email},</if>
+            <if test="user.status != null">status = #{user.status},</if>
+            <if test="user.code != null">code = #{user.code},</if>
+            <if test="user.createTime != null">create_time = #{user.createTime},</if>
+        </set>
+        where id = #{user.id}
+    </update>
+
+    <update id="updateInfo">
+        update user_info
+        <set>
+            <if test="user.userId != null">user_id = #{user.userId},</if>
+            <if test="user.name != null">`name` = #{user.name},</if>
+            <if test="user.sex != null">sex = #{user.sex},</if>
+            <if test="user.photo != null">photo = #{user.photo},</if>
+            <if test="user.sign != null">sign = #{user.sign},</if>
+            <if test="user.update_time != null">update_time = #{user.updateTime},</if>
+            <if test="user.create_time != null">create_time = #{user.createTime},</if>
+        </set>
+        where id = #{userInfo.id}
+    </update>
+
+</mapper>

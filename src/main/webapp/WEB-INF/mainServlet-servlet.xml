@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-3.1.xsd
+		http://www.springframework.org/schema/mvc
+		http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd">
+	<!-- 开启controller注解支持 -->
+	<!-- 注：如果base-package=cn.javass 则注解事务不起作用 -->
+	<mvc:annotation-driven />
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/*"/>
+			<bean class="com.newsmetro.interceptor.LogInterceptor" />
+		</mvc:interceptor>
+		<mvc:interceptor>
+			<mvc:mapping path="/*"/>
+			<mvc:exclude-mapping path="/index.html"/>
+			<mvc:exclude-mapping path="/signin.html"/>
+			<mvc:exclude-mapping path="/signup.html"/>
+			<mvc:exclude-mapping path="/signout.html"/>
+			<mvc:exclude-mapping path="/activeUser.html"/>
+			<mvc:exclude-mapping path="/addTarget.html"/>
+			<mvc:exclude-mapping path="/getSignInKeyAjax.html"/>
+			<mvc:exclude-mapping path="/toSendResetPassMail.html"/>
+			<mvc:exclude-mapping path="/sendResetPassMail.html"/>
+			<mvc:exclude-mapping path="/toResetPassword.html"/>
+			<mvc:exclude-mapping path="/resetPassword.html"/>
+			<mvc:exclude-mapping path="/page404.html"/>
+			<mvc:exclude-mapping path="/page500.html"/>
+			<mvc:exclude-mapping path="/toHelper.html"/>
+			<mvc:exclude-mapping path="/acceptTryWeb.html"/>
+			<bean class="com.newsmetro.interceptor.SignInInterceptor" />
+		</mvc:interceptor>
+	</mvc:interceptors>
+	<bean
+		class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping" />
+	<bean
+		class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+	</bean>
+
+	<context:component-scan base-package="com.newsmetro.action" />
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver"
+		p:viewClass="org.springframework.web.servlet.view.JstlView" p:prefix="/WEB-INF/web/"
+		p:suffix=".jsp" />
+	<bean id="handlerExceptionResolver"
+	  class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+	  <property name="exceptionMappings">
+	    <props>
+	      <prop key="com.newsmetro.exception.AuthorizationException">redirect:/index.html</prop>
+	    </props>
+	  </property>
+	</bean>
+</beans>

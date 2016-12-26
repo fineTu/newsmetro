@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.newsmetro.dao.UserTargetMapper">
+    <sql id="user_target_columns">
+        ut.id as id,ut.user_id as userId,ut.name as name,ut.status as status,ut.update_time as updateTime,ut.create_time as createTime
+    </sql>
+
+    <select id="findById" resultType="com.newsmetro.po.UserTarget">
+        select <include refid="user_target_columns"/> from user_target as ut where ut.id = #{id};
+    </select>
+
+    <select id="find" resultType="com.newsmetro.po.UserTarget">
+        select <include refid="user_target_columns"/> from user_target as ut
+        <trim prefix="where" prefixOverrides="and" >
+            <if test="userId!=null">
+                and ut.user_id = #{userId}
+            </if>
+            <if test="status!=null">
+                and ut.status = #{status}
+            </if>
+
+        </trim>
+        <if test="orderBy!=null">
+            order by #{orderBy}
+        </if>
+        <if test="offset!=null and pageSize!=null">
+            limit #{offset},#{pageSize}
+        </if>
+
+    </select>
+
+    <delete id="delete">
+        delete from user_target where id = #{id}
+    </delete>
+
+    <insert id="save" parameterType="com.newsmetro.po.UserTarget"  useGeneratedKeys="true" keyProperty="id">
+        insert into user_target(user_id,`name`,status,update_time,create_time)
+        values (#{userId},#{name},#{status},#{updateTime},#{createTime});
+        <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
+            select LAST_INSERT_ID();
+        </selectKey>
+    </insert>
+
+    <update id="update">
+        update user_target
+        <set>
+            <if test="name != null">`name` = #{name},</if>
+            <if test="updateTime != null">update_time = #{updateTime}</if>
+            <if test="status != null">status = #{status}</if>
+        </set>
+        where id = #{id}
+    </update>
+
+</mapper>

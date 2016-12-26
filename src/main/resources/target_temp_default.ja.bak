@@ -1,0 +1,20 @@
+<div id="data_{{meta.target_id}}" class="fl w400">
+    <input type="hidden" id="target_id_{{meta.target_id}}" value="{{meta.target_id}}" />
+    <input type="hidden" id="md5_{{meta.target_id}}" value="{{meta.md5}}" />
+    <div class="fl f16" id="name_{{meta.target_id}}">
+        <a class="a_link_blue" href="javascript:void(0);">{{meta.name}}</a>
+    </div>
+    <div class="fl mt5 ml10 color_gray w250" id="description_{{meta.target_id}}">
+        <span></span>
+    </div>
+    <div class="cb mt5 mb10"></div>
+    <div style="width:340px;">
+        <ul class="fl" id="list_{{meta.target_id}}">
+            {% for it in data %}
+            <li class="mb5">
+                <a id="item_{{meta.target_id}}_{{loop.index0}}" class="a_link" style="line-height:20px;" href="{{it.href}}" target="_blank">{{it.text}}</a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>

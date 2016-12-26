@@ -1,0 +1,12 @@
+<div style="width:340px;">
+    <ul class="fl" id="list_{{meta.target_id}}">
+        {% for it in data %}
+        {% if loop.index0 >= 12 %}
+        {% else %}
+        <li class="mb5">
+            <a id="item_{{meta.target_id}}_{{loop.index0}}" class="a_link" style="line-height:20px;" href="{{it.href}}" target="_blank">{{it.text}}</a>
+        </li>
+        {% endif %}
+        {% endfor %}
+    </ul>
+</div>
