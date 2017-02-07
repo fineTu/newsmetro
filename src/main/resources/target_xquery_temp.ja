@@ -1,0 +1,13 @@
+(:xquery 模板
+for $_postDiv in doc('response')//div[@class='items']/div[contains(@class,'item-container')]
+      let 
+        $_postTitle := {data($_postDiv//h2[@class='item-headline']/a)},
+        $_postHref := {data($_postDiv//h2[@class='item-headline']/a/@href)},
+        $_imgSrc := {data($_postDiv//figure/@data-url)}
+      return
+        <data>
+        <title>{$_postTitle}</title>
+        <href>{$_postHref}</href>
+        <img>{$_imgSrc}</img>
+        </data>
+:)

@@ -49,14 +49,31 @@
 			</div>
 			<div id="splite" class="cb"></div>
 			<div id="dev">
-				<form id="dev_form" action="<c:url value='/addTarget.html' />"   method="post">
+				<form id="dev_form" method="post">
 					<div class="mt10">
 						<div class="fl"><span class="f14">资源名：</span><input id="form_name" class="w80" name="name" type="text" value="<c:out value="${target.name }" />" /></div>
 						<div class="fl"><span class="f14">地址：</span><input id="form_url" class="w240" name="url" type="text" value="<c:out value="${target.url }" />" /></div>
 						<div class="fl"><span class="f14">xpath：</span><input id="form_xpath" class="w240" name="relXpath" type="text" value="<c:out value="${target.relXpath }" />" /></div>
+						<div class="fl">
+							<span class="f14">状态：</span>
+							<c:choose>
+								<c:when test="${target.status==1}">
+									<span class="f14">在线</span>
+								</c:when>
+								<c:when test="${target.status==2}">
+									<span class="f14">隐藏</span>
+								</c:when>
+								<c:when test="${target.status==3}">
+									<span class="f14">暂存</span>
+								</c:when>
+								<c:when test="${target.status==null}">
+									<span class="f14">未保存</span>
+								</c:when>
+							</c:choose>
+						</div>
 						<input type="hidden" name="id" value="<c:out value="${target.id }" />" />
 						<input type="hidden" name="type" value="<c:out value="${target.type }" />" />
-						<input type="hidden" name="status" value="<c:out value="${target.status }" />" />
+						<input id="form_status" type="hidden" name="status" value="<c:out value="${target.status }" />" />
 					</div>
 					<div class="cb"></div>
 					<div class="mt10">
@@ -65,7 +82,7 @@
 						<span id="sp_load_xquery" class="f14 fr"  ></span>
 						<div class="cb"></div>
 						<div id="xquery_code">
-							<textarea id="code_xquery" name="xquery" ><c:out value="${target.xquery }" /></textarea>
+							<textarea id="code_xquery" name="xquery" ><c:choose><c:when test="${target.template!=null}"><c:out value="${target.xquery }" /></c:when><c:otherwise><c:out value="${xqueryTemp}" /></c:otherwise></c:choose></textarea>
 						</div>
 					</div>
 					<div id="xquery_res" class="mt10">
@@ -78,15 +95,25 @@
 							<span id="sp_load_temp" class="f14 fr"  ></span>
 							<div class="cb"></div>
 							<div id="temp_code">
-								<textarea id="code_jinja2" name="template" ><c:out value="${target.template }" /></textarea>
+								<textarea id="code_jinja2" name="template" ><c:choose><c:when test="${target.template!=null}"><c:out value="${target.template }" /></c:when><c:otherwise><c:out value="${tempTemp}" /></c:otherwise></c:choose></textarea>
 							</div>
 						</div>
-						<div class="mt10" id="temp_res" style="width:420px; height:346px; background-color:#f0f0f0;">
+						<div>
+							<div class="mt10 fl">
+								<div class="f14">渲染结果：</div>
+								<div id="temp_res" style="width:420px; background-color:#f0f0f0;">
+								</div>
+							</div>
+							<div class="mt10 fl">
+								<div class="f14">结果代码：</div>
+								<textarea readonly="readonly" class="mt10 fl" rows="12" cols="60" id="temp_res_code" style="width:420px; height:346px;"></textarea>
+							</div>
 						</div>
 					</div>
-					<div class="cb"></div>
-					<div class="mt20" style="width: 100%;">
-						<input  style=" margin: 0 auto;" type="submit" value="保存资源"/>
+					<!-- <div class="cb"></div> -->
+					<div class="mt20 cb" style="width: 100%;">
+						<input style="margin: 0 10; float:left;" type="button" onclick="javascript:addTarget(1);" value="保存资源"/>
+						<input style="margin: 0 10; float:left;" type="button" onclick="javascript:addTarget(3);" value="暂存资源"/>
 					</div>
 				</form>
 			</div>
@@ -180,6 +207,12 @@
 				jsonObj = eval("("+data+")");
 				if(jsonObj.is_success==true){
 					$("#temp_res").html(jsonObj.html);
+					htmlStr = jsonObj.html
+					/* var reg = new RegExp("\'","g");//g,表示全部替换
+					htmlStr = htmlStr.replace(reg,"\\\'");
+					reg = new RegExp("\"","g");
+					htmlStr = htmlStr.replace(reg,"\\\""); */
+					$("#temp_res_code").html(htmlStr);
 					$("#sp_load_temp").html("");
 				}else if(jsonObj.is_success==false){
 					$("#temp_res").css("color","red");
@@ -190,6 +223,40 @@
 					var msg = '<span class="mt50">解析未成功</span>';
 					$("#sp_load_temp").html("");
 					$("#sp_load_temp").append(msg);
+				}
+			}
+		});
+	}
+	
+	function addTarget(status){
+		if($.trim($("#form_name").val()).length < 1){
+			alert("请填写资源名称！");
+			return;
+		}
+		if($.trim($("#form_url").val()).length < 1){
+			alert("请填写资源url！");
+			return;
+		}
+		if($.trim($("#form_xpath").val()).length < 1){
+			alert("请填写资源xpath！");
+			return;
+		}
+	    $("#form_status").val(status)
+		var formData = $('#dev_form').serialize();
+		$.ajax({
+			type : "POST",
+			dataType : "html",
+			data : formData,
+			async:true,
+			url : "addTarget.html",
+			success : function(data){
+				jsonObj = eval("("+data+")");
+				if(jsonObj.is_success==true){
+					window.location.href="<%=basePath%>toNewsCenter.html"
+				}else if(jsonObj.is_success==false){
+					alert(jsonObj.reason);
+				}else{
+					alert("服务器出错！");
 				}
 			}
 		});

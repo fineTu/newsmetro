@@ -58,5 +58,7 @@
 
     <bean id="TemplateUtil" class="com.newsmetro.util.TemplateUtil" factory-method="getInstance" >
         <constructor-arg type="java.lang.String" value="target_temp_default.ja" />
+        <constructor-arg type="java.lang.String" value="target_temp_temp.ja" />
+        <constructor-arg type="java.lang.String" value="target_xquery_temp.ja" />
     </bean>
 </beans>

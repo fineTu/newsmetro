@@ -6,8 +6,9 @@
     <div class="left_bar pr ml75">
     	<ul class="fl">
     		<li class="fl" ><a class="a_bt" href="<c:url value='/toNewsCenter.html' />" >新闻中心</a></li>
-			<li class="fl" ><a class="a_bt" href="<c:url value='/userTargetSquare.html' />" >广场</a></li>
+			<%-- <li class="fl" ><a class="a_bt" href="<c:url value='/userTargetSquare.html' />" >广场</a></li> --%>
     		<li class="fl" ><a class="a_bt" href="<c:url value='/myTargetList.html'/>" >管理</a></li>
+    		<li class="fl" ><a class="a_bt" href="<c:url value='/developTarget.html'/>" >开发</a></li>
     		<li class="fl" ><a class="a_bt" href="javascript:void(0);" >个人档</a></li>
     	</ul>
     </div>

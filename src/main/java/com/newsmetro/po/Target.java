@@ -6,7 +6,7 @@ package com.newsmetro.po;
  */
 
 public class Target implements java.io.Serializable {
-
+	
 	public static final int STATUS_REGULAR = 1;
 	public static final int STATUS_HIDE = 2;
 

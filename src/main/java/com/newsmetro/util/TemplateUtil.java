@@ -17,38 +17,52 @@ import java.util.Map;
 
 public class TemplateUtil {
 //    @Value("classpath:target_temp_default.ja")
-    private static Jinjava jinjava = null;
-    private static String DEFAULT_TEMP = null;
+    private Jinjava jinjava = null;
+    private String DEFAULT_TEMP = null;
+    private String TEMP_TEMP = null;
+    private String XQUERY_TEMP = null;
     private static TemplateUtil instance = null;
 
-    private TemplateUtil(String templatePath) {
+    private TemplateUtil(String templatePath,String tempTempPath,String xqueryTempPath) {
         jinjava = new Jinjava();
 //        DEFAULT_TEMP = readToString("/home/tmp/target_temp_default.ja");
 //        FileLocator fl = new FileLocator();
         try {
             Resource defaultTempResource =  new ClassPathResource(templatePath);
             DEFAULT_TEMP = IOUtils.toString(defaultTempResource.getInputStream());
+            Resource tempTempResource =  new ClassPathResource(tempTempPath);
+            TEMP_TEMP = IOUtils.toString(tempTempResource.getInputStream());
+            Resource xqueryTempResource =  new ClassPathResource(xqueryTempPath);
+            XQUERY_TEMP = IOUtils.toString(xqueryTempResource.getInputStream());
 //            DEFAULT_TEMP = fl.getString("resources/target_temp_default.ja", StandardCharsets.UTF_8,null);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static TemplateUtil getInstance(String templatePath){
+    public static TemplateUtil getInstance(String templatePath,String tempTempPath,String xqueryTempPath){
         if(instance == null){
-            instance = new TemplateUtil(templatePath);
+            instance = new TemplateUtil(templatePath,tempTempPath,xqueryTempPath);
         }
         return instance;
     }
 
     public static String render(Map<String,Object> data){
-        return instance.jinjava.render(DEFAULT_TEMP,data);
+        return instance.jinjava.render(instance.DEFAULT_TEMP,data);
     }
 
     public static String render(Map<String,Object> data,String template){
         return instance.jinjava.render(template,data);
     }
-
+    
+    public static String getTempTemp(){
+    	return instance.TEMP_TEMP;
+    }
+    
+    public static String getXqueryTemp(){
+    	return instance.XQUERY_TEMP;
+    }
+    
     public static void main(String[] args){
 
         Map<String,Object> context = new HashMap<String, Object>();

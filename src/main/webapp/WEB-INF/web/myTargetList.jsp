@@ -40,14 +40,18 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 							 href="<c:url value="/myTargetList.html"/>">订阅管理</a>
 					</span>
 					<span class="fl mr20"><a class="a_link"
+							 style="line-height:76px; font-size: 14px;"
+							 href="<c:url value="/developTarget.html"/>">开发</a>
+					</span>
+					<%-- <span class="fl mr20"><a class="a_link"
 							 style=" line-height:76px; font-size: 14px; color:#666;"
 							 href="<c:url value="/userTargetList.html"/>">发布管理</a>
-					</span>
+					</span> --%>
 				</div>
-				<div class="fl">
+				<!-- <div class="fl">
 					<a href="javascript:void(0);" id="add_res" class="a_link_guan"
 						style="line-height:70px; font-size: 36px; font-weight: bold;">+</a>
-				</div>
+				</div> -->
                 <div class="cb"></div>
 				<div id="add_form" style=" display:none; position: relative;">
 					<div style="float:left; width:400px; line-height:40px; ">
@@ -129,6 +133,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 										</select>
 										<button id="btn_add_to_group" style="height:20px;" onclick="javascript:addToGroup(<c:out value="${b.targetGroup.id}" />,<c:out value="${t.id }" />);" value="确定">确定</button>
 									</span>
+								</div>
+								<div id="develop_link_<c:out value="${t.id}" />" class="fl ml10 single_line_text w30">
+									<span><a class="a_link_guan" target='_blank' href="<c:url value="/developTarget.html?targetId=${t.id }"/>">编辑</a></span>
 								</div>
 								<div id="show_switch_<c:out value="${t.id}" />" class="fl ml10 single_line_text w30">
 									<c:if test="${t.status == 1 }" >

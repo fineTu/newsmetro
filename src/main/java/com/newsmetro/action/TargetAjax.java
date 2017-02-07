@@ -1,28 +1,52 @@
 package com.newsmetro.action;
 
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.reflect.TypeToken;
-import com.newsmetro.po.*;
-import com.newsmetro.pojo.*;
-import com.newsmetro.service.*;
-import com.newsmetro.util.*;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.*;
+import com.google.gson.JsonSyntaxException;
+import com.newsmetro.po.Target;
+import com.newsmetro.po.TargetCache;
+import com.newsmetro.po.TargetGroup;
+import com.newsmetro.po.User;
+import com.newsmetro.po.UserTarget;
+import com.newsmetro.pojo.NewsBean;
+import com.newsmetro.pojo.NewsForm;
+import com.newsmetro.pojo.Rss;
+import com.newsmetro.pojo.RssItem;
+import com.newsmetro.pojo.TargetForm;
+import com.newsmetro.pojo.TargetGroupBean;
+import com.newsmetro.pojo.TargetView;
+import com.newsmetro.service.NewsService;
+import com.newsmetro.service.ScriptService;
+import com.newsmetro.service.TargetCacheService;
+import com.newsmetro.service.TargetGroupService;
+import com.newsmetro.service.TargetService;
+import com.newsmetro.service.UserService;
+import com.newsmetro.service.UserTargetService;
+import com.newsmetro.util.GsonUtil;
+import com.newsmetro.util.HttpGetter;
+import com.newsmetro.util.MD5Util;
+import com.newsmetro.util.TemplateUtil;
 
 
 @Controller
@@ -46,7 +70,7 @@ public class TargetAjax extends BaseAction {
 
 	@RequestMapping(value="/getTarget.html",params = "isRss=1")
 	public void getRss(HttpServletRequest request,HttpServletResponse response,Target target) {
-        if(target==null&&target.getId()==null){
+        if(target==null||target.getId()==null){
             return;
         }
 		Target tp = tpService.getTargetById(target.getId());
@@ -223,6 +247,77 @@ public class TargetAjax extends BaseAction {
         try {  
             out = response.getWriter();  
             out.write(groupArray.toString());
+        } catch (IOException e) {  
+            e.printStackTrace();  
+        }  
+	}
+	
+	@RequestMapping(value="/addTarget.html")
+	public void addTarget(HttpServletRequest request,Target target,HttpServletResponse response){
+		boolean isSuccess = true;
+		String reason = "";
+		User user = (User)request.getSession().getAttribute("user");
+		
+		target.setUser(user);
+		target.setStatus(target.getStatus());
+		target.setUserId(user.getId());
+		if(target!=null&&target.getUserTargetId()!=null){
+			UserTarget userTarget = userTargetService.findById(target.getUserTargetId());
+			if(userTarget==null){
+				isSuccess = false;
+			}
+			target.setName(userTarget.getName());
+			target.setType(Target.TYPE_USER);
+			tpService.addTarget(target);
+
+		}else{
+			if(target.getId()!=null){
+				tpService.updateTarget(target);
+			}else{
+				if(target.getName()==null){
+					isSuccess = false;
+					reason = "请填写资源名称";
+				}
+				if(target.getUrl()==null){
+					isSuccess = false;
+					reason = "请填写url";
+				}
+				if(target.getRelXpath()==null){
+					isSuccess = false;
+					reason = "请填写Xpath";
+				}
+				
+				tpService.addTarget(target);
+				String cacheStr = request.getParameter("xquery_res");
+				if(StringUtils.isNotBlank(cacheStr)) {
+					JSONObject jsonObj = JSONObject.fromObject(cacheStr);
+					if(jsonObj.has("meta")){
+						JSONObject metaObj = (JSONObject) jsonObj.get("meta");
+						metaObj.put("target_id",target.getId());
+						metaObj.put("md5","123");
+					}
+					TargetCache targetCache = new TargetCache();
+					targetCache.setTargetId(target.getId());
+					targetCache.setItems(jsonObj.toString());
+					targetCache.setMd5(MD5Util.md5(cacheStr,MD5Util._32_BIT));
+					targetCache.setUpdateTime(System.currentTimeMillis());
+					targetCacheService.saveTargetCache(targetCache);
+				}
+			}
+
+		}
+		
+		JSONObject res = new JSONObject();
+		res.put("is_success", isSuccess?true:false);
+		res.put("reason", reason);
+		response.setContentType("application/json;charset=UTF-8");  
+        response.setHeader("Pragma", "No-cache");  
+        response.setHeader("Cache-Control", "no-cache");  
+        response.setDateHeader("Expires", 0);
+        PrintWriter out = null;
+        try {  
+            out = response.getWriter();  
+            out.write(res.toString());
         } catch (IOException e) {  
             e.printStackTrace();  
         }  
